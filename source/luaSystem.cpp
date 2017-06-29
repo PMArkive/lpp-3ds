@@ -2018,6 +2018,28 @@ static int lua_dup(lua_State *L){ // TODO: Add Music and wav struct support
 	lua_pushinteger(L, (u32)res);
 	return 1;
 }
+// Thanks Al <3
+static int lua_split(lua_State *L)
+{
+	int argc = lua_gettop(L);
+	#ifndef SKIP_ERROR_HANDLING
+	if(argc != 2) return luaL_error(L, "wrong number of arguments.");
+	#endif
+
+	const char* input = luaL_checkstring(L,1);
+	const char* seperator = luaL_checkstring(L,2);
+	char* token;
+	int num = 0;
+
+	token = strtok(input,seperator);
+	while (token != NULL)
+	{
+		lua_pushstring(L,token);
+		token = strtok (NULL,seperator);
+		num++;
+	}
+	return num;
+}
 
 //Register our System Functions
 static const luaL_Reg System_functions[] = {
@@ -2073,6 +2095,7 @@ static const luaL_Reg System_functions[] = {
 	{"extractFromZIP",      lua_getfilefromzip},
 	{"checkSDMC",           lua_detectsd},
 	{"fork",                lua_dup},
+	{"split",		lua_split},
 // I/O Module and Dofile Patch
 	{"openFile",            lua_openfile},
 	{"getFileSize",         lua_getsize},
