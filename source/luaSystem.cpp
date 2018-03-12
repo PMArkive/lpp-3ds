@@ -1938,6 +1938,45 @@ static int lua_sleep(lua_State *L)
 	return 0;
 }
 
+static int lua_bytestonumber(lua_State *L)
+{
+  int argc = lua_gettop(L);
+  #ifndef SKIP_ERROR_HANDLING
+  if(argc != 2) return luaL_error(L, "wrong number of arguments.");
+  #endif
+  const char *bytes = luaL_checkstring(L, 1);
+  const int offset = luaL_checkinteger(L, 2);
+  union
+  {
+    char byteBuffer[4];
+    int byteOutput;
+  } u;
+  int i;
+   for(i=offset; i<offset + 4; i++)
+	    {
+	      u.byteBuffer[i-offset] = bytes[i];
+	    }
+   
+     	lua_pushinteger(L, u.byteOutput);
+	return 1;
+}
+
+static int lua_bytetonumber(lua_State *L)
+{
+  int argc = lua_gettop(L);
+  #ifndef SKIP_ERROR_HANDLING
+  if(argc != 2) return luaL_error(L, "wrong number of arguments.");
+  #endif
+  const char *bytes = luaL_checkstring(L, 1);
+  const int offset = luaL_checkinteger(L, 2);
+
+  char byteBuffer = bytes[offset];
+  int i = byteBuffer - '0';
+  
+  lua_pushinteger(L, i);
+  return 1;
+}
+
 static int lua_detectsd(lua_State *L){
 	int argc = lua_gettop(L);
 	#ifndef SKIP_ERROR_HANDLING
@@ -2092,6 +2131,8 @@ static const luaL_Reg System_functions[] = {
 	{"setCpuSpeed",         lua_setcpu},
 	{"getCpuSpeed",         lua_getcpu},
 	{"sleep",		lua_sleep},
+	{"bytesToNumber",       lua_bytestonumber},
+	{"byteToNumber",        lua_bytetonumber},
 	{"extractFromZIP",      lua_getfilefromzip},
 	{"checkSDMC",           lua_detectsd},
 	{"fork",                lua_dup},
